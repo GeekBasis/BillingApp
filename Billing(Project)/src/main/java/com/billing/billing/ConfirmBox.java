@@ -11,7 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-class ConfirmBox {
+
+public class ConfirmBox {
 
     static boolean answer;
 
@@ -46,14 +47,14 @@ class ConfirmBox {
 
         // the layout for the confirmBox components
         HBox btn_layout = new HBox();
-        btn_layout.setMargin(yesButton,new Insets(5,10,10,10));
-        btn_layout.setMargin(noButton, new Insets(5,10,10,10));
+        HBox.setMargin(yesButton,new Insets(5,10,10,10));
+        HBox.setMargin(noButton, new Insets(5,10,10,10));
         btn_layout.getChildren().addAll(yesButton, noButton);
         btn_layout.setAlignment(Pos.CENTER);
 
-        // main content of the confirm box
+        // main content of the confirm-box
         VBox confirm_content = new VBox();
-        confirm_content.setMargin(lbl, new Insets(5,0,5,35));
+        VBox.setMargin(lbl, new Insets(5,0,5,35));
         confirm_content.getChildren().addAll(lbl, btn_layout);
 
         // confirmBox's scene
