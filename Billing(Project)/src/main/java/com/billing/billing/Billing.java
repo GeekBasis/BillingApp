@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -16,35 +17,40 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class Billing extends Application {
 
-    // create sign_in and create_account buttons
-    private Button create_btn;
-    Stage login_window;
+    Stage main_window;
 
-    public static void main(String[] args) {
-        launch();
-    }
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
 
-        login_window = stage;
+        // Login Scene content
+        VBox content = new VBox();
+        Label say_hi = new Label("Say Hi");
+        Button create_acc_btn = new Button("Sign Up");
+        content.getChildren().addAll(say_hi, create_acc_btn);
+        Scene login_scene = new Scene(content);
+
+	    // Main window of the registration and login
+        main_window = stage;
+     
         // set the logo
         Image icon = new Image("Logo.jpg");
-        login_window.getIcons().add(icon);
+        main_window.getIcons().add(icon);
+
         // give the title
-        login_window.setTitle("GeekBasis \"Login\"");
+        main_window.setTitle("GeekBasis \"Sign Up\"");
+
         // what is going to happen when x is pressed?
-        login_window.setOnCloseRequest(e-> {
+        main_window.setOnCloseRequest(e-> {
             e.consume(); // consumes the close event
             closeProgram();
         });
+
         // adjust dimensions
-        login_window.setWidth(1100);
-        login_window.setHeight(680);
+        main_window.setWidth(1100);
+        main_window.setHeight(680);
 
         // main pane
         BorderPane main_pane = new BorderPane();
@@ -52,10 +58,10 @@ public class Billing extends Application {
         // main background image
         Image back_image = new Image("back_img.jpg", 1200, 780, false, false);
         BackgroundImage bImg = new BackgroundImage(back_image,
-                                                    BackgroundRepeat.NO_REPEAT,
-                                                    BackgroundRepeat.NO_REPEAT,
-                                                    BackgroundPosition.DEFAULT,
-                                                    BackgroundSize.DEFAULT);
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
         Background b_ground = new Background(bImg);
         main_pane.setBackground(b_ground);
 
@@ -79,7 +85,7 @@ public class Billing extends Application {
         big_lbl.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR, 37));
         box_lbl1.getChildren().add(big_lbl);
         // setting the margin
-        box_lbl1.setMargin(big_lbl, new Insets(10, 10, 25, 15));
+        HBox.setMargin(big_lbl, new Insets(10, 10, 25, 15));
         box_lbl1.setStyle("-fx-text-fill: green;");
 
         big_text.add(box_lbl1, 0, 1);
@@ -102,8 +108,8 @@ public class Billing extends Application {
         name_surname_field.add(l_name_input, 1, 0);
 
         // setting margins for input fields
-        name_surname_field.setMargin(name_input, new Insets(0,10,10,0));
-        name_surname_field.setMargin(l_name_input, new Insets(0,0,10,10));
+        GridPane.setMargin(name_input, new Insets(0,10,10,0));
+        GridPane.setMargin(l_name_input, new Insets(0,0,10,10));
 
         // content for passwords
         VBox em_pass_field = new VBox();
@@ -122,14 +128,15 @@ public class Billing extends Application {
         em_pass_field.getChildren().addAll(email_input, pass_field);
 
         // setting margins for input fields
-        em_pass_field.setMargin(email_input, new Insets(0,0,10,0));
-        em_pass_field.setMargin(pass_field, new Insets(0,0,10,0));
+        VBox.setMargin(email_input, new Insets(0,0,10,0));
+        VBox.setMargin(pass_field, new Insets(0,0,10,0));
 
         // for the create account button
         GridPane btn_fld = new GridPane();
 
         // Create Account button
-        create_btn = new Button("Create Account");
+        // create sign_in and create_account buttons
+        Button create_btn = new Button("Sign Up");
         create_btn.setOnAction(e -> System.out.println("Creating"));
         create_btn.setStyle("-fx-opacity: 0.9;");
         // event handling for the create button
@@ -137,11 +144,26 @@ public class Billing extends Application {
             isProper(name_input, name_input.getText());
             isProper(l_name_input, l_name_input.getText());
         });
+        create_btn.setStyle("-fx-opacity: 0.9;");
+        // event handling for the create button
+        create_btn.setOnAction(e -> {
+            isProper(name_input, name_input.getText());
+            isProper(l_name_input, l_name_input.getText());
+        });
+
+        // Login Button
+        Button login_btn = new Button("Sign In");
+        login_btn.setOnAction(e -> {
+            main_window.setTitle("GeekBasis \"Sign In\"");
+            main_window.setScene(login_scene);
+        });
 
         btn_fld.add(create_btn, 0,0);
+        btn_fld.add(login_btn, 1, 0);
 
         // setting a margin for create button
-        btn_fld.setMargin(create_btn, new Insets(5,0,0,110));
+        GridPane.setMargin(create_btn, new Insets(5,10,10,90));
+        GridPane.setMargin(login_btn, new Insets(5,0,10,10));
 
         // login content
         GridPane login_content = new GridPane();
@@ -154,44 +176,64 @@ public class Billing extends Application {
         main_pane.setCenter(login_content);
 
         // stage options
-        login_window.setResizable(false);
+        main_window.setResizable(false);
 
         // a main scene containing 2 scenes with logo and login field
         Scene main_scene = new Scene(main_pane);
 
+        // add an action to the sign-up button
+        create_acc_btn.setOnAction(e->
+        {
+            main_window.setTitle("GeekBasis \"Sign Up\"");
+            login_content.setPadding(new Insets(0, 280, 150, 0));
+
+            // Clear fields of name and lastname
+            name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            name_input.setPromptText("Name");
+            l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            name_input.setPromptText("Last Name");
+            main_window.setScene(main_scene);
+
+        });
+
         // display the stage with the scene
-        login_window.setScene(main_scene);
-        login_window.show();
+        main_window.setScene(main_scene);
+        main_window.show();
+
     }
 
     // a method used when closing the app
     private void closeProgram(){
-        Boolean answer = ConfirmBox.display("Exit", "Do you want to exit?");
+        boolean answer = ConfirmBox.display("Exit", "Do you want to exit?");
         if(answer) {
-            login_window.close();
+            main_window.close();
             System.out.println("Exited at " + java.time.LocalTime.now());
         }
     }
 
     // for checking for a valid input
     private boolean isProper(TextField text_input_field, String message){
-            try {
-                if  (text_input_field.getText()==null
-                        || text_input_field.getText().equals("")
-                        || text_input_field.getText().equals("Invalid input")) {
-                }
-                else{
-                    int input = Integer.parseInt(text_input_field.getText());
-                    System.out.println("Error: " + message + " is not a text!");
-                }
-                text_input_field.clear();
-                text_input_field.setPromptText("Invalid input");
+        try {
+            if  (text_input_field.getText()==null
+                    || text_input_field.getText().equals("")
+                    || text_input_field.getText().equals("Invalid input")) {
                 text_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
-                return false;
-            }catch (NumberFormatException e){
-                text_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
-                return true;
             }
+            else{
+                Integer.parseInt(text_input_field.getText());
+                System.out.println("Error: " + message + " is not a text!");
+            }
+            text_input_field.clear();
+            text_input_field.setPromptText("Invalid input");
+            text_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
+            return false;
+        }catch (NumberFormatException e){
+            text_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            return true;
+        }
+    }
+
+    public static void main(String[] args) {
+        launch();
     }
 }
-
