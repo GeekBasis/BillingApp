@@ -1,8 +1,7 @@
 package com.billing.billing;
+
 import java.sql.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -11,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -28,6 +27,20 @@ public class Billing extends Application {
 
     @Override
     public void start(Stage stage) {
+//        // MySQL set up
+//        Connection connect = null;
+//        try {
+//            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
+//        Statement query = null;
+//        try {
+//            assert connect != null;
+//            query = connect.createStatement();
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//        }
 
         // prepare a logo
         Image icon = new Image("Logo.jpg");
@@ -45,7 +58,6 @@ public class Billing extends Application {
         main_app_window.setWidth(1100);
         main_app_window.setHeight(680);
 
-
         // Main App Scene Content
         BorderPane main_app = new BorderPane();
 
@@ -60,29 +72,112 @@ public class Billing extends Application {
         main_app.setCenter(addGridPane1());
         main_app.setRight(addGridPane2());
 
-
         Scene main_app_scene = new Scene(main_app);
 
         // adding keyboard events to the main app scene
-        main_app_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
-
-            @Override
-            public void handle(KeyEvent event){
-                switch (event.getCode()){
-                    case ESCAPE: if(closeProgram()){main_app_window.close();} break;
+        main_app_scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (closeProgram()) {
+                    main_app_window.close();
                 }
             }
         });
 
         main_app_window.setScene(main_app_scene);
 
-
         // Login Scene content
-        VBox content = new VBox();
-        Label say_hi = new Label("Say Hi");
+        BorderPane main_pane_login = new BorderPane();
+
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(15, 15, 15, 15));
+        grid.setVgap(8);
+        grid.setHgap(10);
+        grid.setAlignment(Pos.CENTER);
+
+        // login back image
+        Image back_image_login = new Image("login_back.jpg", 1200, 780, false, false);
+        BackgroundImage bImg_login = new BackgroundImage(back_image_login,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
+        Background b_ground_login = new Background(bImg_login);
+
+        main_pane_login.setBackground(b_ground_login);
+
+        Image login_image = new Image("Logo_login.png", 100, 100, false, false);
+        ImageView imageView_login = new ImageView(login_image);
+
+        //Header Text
+        Text login_page = new Text("Login Page");
+        login_page.setX(50);
+        login_page.setY(40);
+        login_page.setStyle("-fx-font-size: 30pt; ");
+
+        //Name Label
+        Label nameLabel = new Label("Username: ");
+        GridPane.setConstraints(nameLabel, 1, 1);
+        nameLabel.setStyle("-fx-font-size: 12pt");
+
+        //Name Input
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("Username");
+        GridPane.setConstraints(nameInput, 2, 1);
+        nameInput.setStyle("-fx-font-size: 12pt");
+
+        //Password Label
+        Label passwordLabel = new Label("Password: ");
+        GridPane.setConstraints(passwordLabel, 1, 2);
+        passwordLabel.setStyle("-fx-font-size: 12pt");
+
+        //Password Input
+        PasswordField passwordInput = new PasswordField();
+        passwordInput.setPromptText("Password");
+        GridPane.setConstraints(passwordInput,  2, 2);
+        passwordInput.setStyle("-fx-font-size: 12pt;");
+
+        Button login_button = new Button("Log In");
+//        Statement finalQuery1 = query;
+        login_button.setOnAction(e->
+        {
+            isProper(nameInput);
+            isProperPassword(passwordInput);
+            if (isProper(nameInput) && isProperPassword(passwordInput)){
+
+//                ////////// SQL //////////////
+//                String selectStatement = "select exist (select Name, Password from users where Name= '"+nameInput+"' and Password= '"+passwordInput+"')";
+//                ResultSet bool;
+//                try {
+//                    assert finalQuery1 != null;
+//                    bool = finalQuery1.executeQuery(selectStatement);
+//                    if(!bool.next()){
+//                        main_window.setScene(main_scene);
+//                    }
+//                } catch (SQLException ex) {
+//                    ex.printStackTrace();
+//                }
+
+                nameInput.clear();
+                passwordInput.clear();
+                main_window.close();
+                main_app_window.show();
+            }
+
+        });
         Button create_acc_btn = new Button("Sign Up");
-        content.getChildren().addAll(say_hi, create_acc_btn);
-        login_scene = new Scene(content);
+        GridPane.setConstraints(login_button, 2, 3);
+        GridPane.setConstraints(create_acc_btn, 3,3);
+        login_button.setStyle("-fx-font-size: 12pt");
+        create_acc_btn.setStyle("-fx-font-size: 12pt");
+        grid.getChildren().addAll(login_page, nameLabel, nameInput, passwordLabel, passwordInput, login_button, create_acc_btn);
+
+        main_pane_login.setCenter(grid);
+        main_pane_login.setBottom(imageView_login);
+        BorderPane.setAlignment(imageView_login, Pos.CENTER); //Alligning everything to the center
+        BorderPane.setAlignment(grid, Pos.CENTER); //Alligning everything to the center
+
+        // the scene of the login page
+        login_scene = new Scene(main_pane_login, 1200, 700);
 
 	    // Main window of the registration and login
         main_window = stage;
@@ -95,7 +190,7 @@ public class Billing extends Application {
         // what is going to happen when x is pressed?
         main_window.setOnCloseRequest(e-> {
             e.consume(); // consumes the close event
-            closeProgram();
+            if(closeProgram()) main_window.close();
         });
 
         // adjust dimensions
@@ -116,8 +211,8 @@ public class Billing extends Application {
         main_pane.setBackground(b_ground);
 
         // image for the logo field
-        Image login_image = new Image("Logo_login.png", 100, 100, false, false);
-        ImageView imageView = new ImageView(login_image);
+        Image sign_in_image = new Image("Logo_login.png", 100, 100, false, false);
+        ImageView imageView = new ImageView(sign_in_image);
 
         // putting the image in the center
         BorderPane.setAlignment(imageView, Pos.CENTER);
@@ -189,13 +284,27 @@ public class Billing extends Application {
         Button create_btn = new Button("Sign Up");
         create_btn.setStyle("-fx-opacity: 0.9;");
         // event handling for the create button
+//        Statement finalQuery = query;
         create_btn.setOnAction(e -> {
-            isProper(name_input, name_input.getText());
-            isProper(l_name_input, l_name_input.getText());
-            if(isProper(name_input, name_input.getText())
+            isProper(name_input);
+            isProper(l_name_input);
+            isProper(email_input);
+            isProperPassword(pass_field);
+            if(isProper(name_input)
                     &&
-                    isProper(l_name_input, l_name_input.getText())){
-                    main_window.setScene(login_scene);
+                    isProper(l_name_input)
+                    &&
+                    isProper(email_input)
+                    &&
+                    isProperPassword(pass_field)){
+//                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+//                try {
+//                    assert finalQuery != null;
+//                    finalQuery.executeUpdate(insertStatement);
+//                } catch (SQLException ex) {
+//                    ex.printStackTrace();
+//                }
+                main_window.setScene(login_scene);
             }
         });
 
@@ -230,32 +339,32 @@ public class Billing extends Application {
         Scene main_scene = new Scene(main_pane);
 
         // adding keyboard events to the main scene
-        main_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
-
-            @Override
-            public void handle(KeyEvent event){
-                switch (event.getCode()){
-                    case ESCAPE: if(closeProgram()){main_window.close();} break;
-                    case ENTER: {
-                        isProper(name_input, name_input.getText());
-                        isProper(l_name_input, l_name_input.getText());
-                        if(isProper(name_input, name_input.getText())
-                                &&
-                                isProper(l_name_input, l_name_input.getText())){
-                            main_window.setScene(login_scene);
-                        }
-                    } break;
-                }
+        main_scene.setOnKeyPressed(event -> {
+            switch (event.getCode()){
+                case ESCAPE: if(closeProgram()){main_window.close();} break;
+                case ENTER: {
+                    isProper(name_input);
+                    isProper(l_name_input);
+                    isProper(email_input);
+                    isProperPassword(pass_field);
+                    if(isProper(name_input)
+                            &&
+                            isProper(l_name_input)
+                            &&
+                            isProper(email_input)
+                            &&
+                            isProperPassword(pass_field)){
+                        main_window.setScene(login_scene);
+                    }
+                } break;
             }
         });
 
         // adding keyboard events to the login scene
-        login_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
-
-            @Override
-            public void handle(KeyEvent event){
-                switch (event.getCode()){
-                    case ESCAPE: if(closeProgram()){main_window.close();} break;
+        login_scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (closeProgram()) {
+                    main_window.close();
                 }
             }
         });
@@ -263,19 +372,7 @@ public class Billing extends Application {
         // add an action to the sign-up button
         create_acc_btn.setOnAction(e->
         {
-            // MySQL set up
-            Connection connect = null;
-            try {
-                connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/<table_name>?autoReconnect=true&useSSL=false", "<user>", "<password>");
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            Statement query = null;
-            try {
-                query = connect.createStatement();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+
             main_window.setTitle("GeekBasis \"Sign Up\"");
             login_content.setPadding(new Insets(0, 280, 150, 0));
 
@@ -284,13 +381,6 @@ public class Billing extends Application {
             name_input.setPromptText("Name");
             l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
             name_input.setPromptText("Last Name");
-            String insertStatement = "insert into users values ("+track+",'"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
-            try {
-                query.executeUpdate(insertStatement);
-                track.addAndGet(1);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
             cleaner(); // cleans the inputted fields
             main_window.setScene(main_scene);
 
@@ -316,7 +406,7 @@ public class Billing extends Application {
     }
 
     // for checking for a valid input
-    private boolean isProper(TextField text_input_field, String message){
+    private boolean isProper(TextField text_input_field){
         try {
             if  (text_input_field.getText()==null
                     || text_input_field.getText().equals("")
@@ -325,7 +415,6 @@ public class Billing extends Application {
             }
             else{
                 Integer.parseInt(text_input_field.getText());
-                System.out.println("Error: " + message + " is not a text!");
             }
             text_input_field.clear();
             text_input_field.setPromptText("Invalid input");
@@ -336,6 +425,23 @@ public class Billing extends Application {
             return true;
         }
     }
+
+    // for checking for a valid input of password
+    private boolean isProperPassword(PasswordField password_input_field){
+            if  (password_input_field.getText()==null
+                    || password_input_field.getText().equals("")
+                    || password_input_field.getText().equals("Invalid input")) {
+                password_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
+                password_input_field.clear();
+                password_input_field.setPromptText("Invalid input");
+                return false;
+            }
+            else {
+                password_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+                return true;
+            }
+    }
+
 
     public VBox addVBox() {
         VBox vbox = new VBox();
