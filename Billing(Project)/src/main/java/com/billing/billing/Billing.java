@@ -1,6 +1,7 @@
 package com.billing.billing;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -9,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -21,6 +23,7 @@ public class Billing extends Application {
     Stage main_window, main_app_window;
     TextField name_input, l_name_input, email_input;
     PasswordField pass_field;
+    Scene login_scene;
 
     @Override
     public void start(Stage stage) {
@@ -58,6 +61,18 @@ public class Billing extends Application {
 
 
         Scene main_app_scene = new Scene(main_app);
+
+        // adding keyboard events to the main app scene
+        main_app_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+
+            @Override
+            public void handle(KeyEvent event){
+                switch (event.getCode()){
+                    case ESCAPE: if(closeProgram()){main_app_window.close();} break;
+                }
+            }
+        });
+
         main_app_window.setScene(main_app_scene);
 
 
@@ -66,7 +81,7 @@ public class Billing extends Application {
         Label say_hi = new Label("Say Hi");
         Button create_acc_btn = new Button("Sign Up");
         content.getChildren().addAll(say_hi, create_acc_btn);
-        Scene login_scene = new Scene(content);
+        login_scene = new Scene(content);
 
 	    // Main window of the registration and login
         main_window = stage;
@@ -179,8 +194,7 @@ public class Billing extends Application {
             if(isProper(name_input, name_input.getText())
                     &&
                     isProper(l_name_input, l_name_input.getText())){
-                    main_window.close();
-                    main_app_window.show();
+                    main_window.setScene(login_scene);
             }
         });
 
@@ -214,6 +228,37 @@ public class Billing extends Application {
         // a main scene containing 2 scenes with logo and login field
         Scene main_scene = new Scene(main_pane);
 
+        // adding keyboard events to the main scene
+        main_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+
+            @Override
+            public void handle(KeyEvent event){
+                switch (event.getCode()){
+                    case ESCAPE: if(closeProgram()){main_window.close();} break;
+                    case ENTER: {
+                        isProper(name_input, name_input.getText());
+                        isProper(l_name_input, l_name_input.getText());
+                        if(isProper(name_input, name_input.getText())
+                                &&
+                                isProper(l_name_input, l_name_input.getText())){
+                            main_window.setScene(login_scene);
+                        }
+                    } break;
+                }
+            }
+        });
+
+        // adding keyboard events to the login scene
+        login_scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+
+            @Override
+            public void handle(KeyEvent event){
+                switch (event.getCode()){
+                    case ESCAPE: if(closeProgram()){main_window.close();} break;
+                }
+            }
+        });
+
         // add an action to the sign-up button
         create_acc_btn.setOnAction(e->
         {
@@ -240,12 +285,13 @@ public class Billing extends Application {
     }
 
     // a method used when closing the app
-    private void closeProgram(){
+    private boolean closeProgram(){
         boolean answer = ConfirmBox.display("Exit", "Do you want to exit?");
         if(answer) {
-            main_window.close();
             System.out.println("Exited at " + java.time.LocalTime.now());
+            return true;
         }
+        return false;
     }
 
     // for checking for a valid input
@@ -285,7 +331,7 @@ public class Billing extends Application {
                 new Hyperlink("MyProfile"),
                 new Hyperlink("Settings"),
                 new Hyperlink("Create New Account"),
-                new Hyperlink("Exit")};
+                new Hyperlink("Log Out")};
 
         // hyperlinks in the main app
         options[0].setOnAction(e->options[0].setVisited(false));
@@ -298,7 +344,11 @@ public class Billing extends Application {
             options[2].setVisited(false);
         });
         //exit option
-        options[3].setOnAction(e->main_app_window.close());
+        options[3].setOnAction(e->{
+            main_app_window.close();
+            main_window.setScene(login_scene);
+            main_window.show();
+        });
 
         for (int i = 0; i < 4; i++) {
             int num = i;
