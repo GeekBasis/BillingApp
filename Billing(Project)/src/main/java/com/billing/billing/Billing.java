@@ -1,7 +1,6 @@
 package com.billing.billing;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -299,9 +298,7 @@ public class Billing extends Application {
             options[2].setVisited(false);
         });
         //exit option
-        options[3].setOnAction(e->{
-            main_app_window.close();
-        });
+        options[3].setOnAction(e->main_app_window.close());
 
         for (int i = 0; i < 4; i++) {
             int num = i;
@@ -407,6 +404,7 @@ public class Billing extends Application {
         return grid;
     }
 
+    // cleans text and password input fields when called
     public void cleaner(){
         name_input.clear();
         l_name_input.clear();
