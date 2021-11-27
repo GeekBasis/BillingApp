@@ -1,5 +1,6 @@
 package com.billing.billing;
-
+import java.sql.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -262,6 +263,19 @@ public class Billing extends Application {
         // add an action to the sign-up button
         create_acc_btn.setOnAction(e->
         {
+            // MySQL set up
+            Connection connect = null;
+            try {
+                connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/<table_name>?autoReconnect=true&useSSL=false", "<user>", "<password>");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            Statement query = null;
+            try {
+                query = connect.createStatement();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             main_window.setTitle("GeekBasis \"Sign Up\"");
             login_content.setPadding(new Insets(0, 280, 150, 0));
 
@@ -270,6 +284,13 @@ public class Billing extends Application {
             name_input.setPromptText("Name");
             l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
             name_input.setPromptText("Last Name");
+            String insertStatement = "insert into users values ("+track+",'"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+            try {
+                query.executeUpdate(insertStatement);
+                track.addAndGet(1);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             cleaner(); // cleans the inputted fields
             main_window.setScene(main_scene);
 
