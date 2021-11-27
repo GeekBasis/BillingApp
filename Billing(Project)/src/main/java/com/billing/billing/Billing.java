@@ -23,24 +23,31 @@ public class Billing extends Application {
     Stage main_window, main_app_window;
     TextField name_input, l_name_input, email_input;
     PasswordField pass_field;
-    Scene login_scene;
+    Scene login_scene, main_scene;
 
     @Override
     public void start(Stage stage) {
-//        // MySQL set up
-//        Connection connect = null;
-//        try {
-//            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
-//        } catch (SQLException ex) {
-//            ex.printStackTrace();
-//        }
-//        Statement query = null;
-//        try {
-//            assert connect != null;
-//            query = connect.createStatement();
-//        } catch (SQLException ex) {
-//            ex.printStackTrace();
-//        }
+
+        // main pane
+        BorderPane main_pane = new BorderPane();
+
+        // login content
+        GridPane login_content = new GridPane();
+
+        // MySQL set up
+        Connection connect = null;
+        try {
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:xxxx/xxxx", "xxxx", "xxxx");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        Statement query = null;
+        try {
+            assert connect != null;
+            query = connect.createStatement();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
         // prepare a logo
         Image icon = new Image("Logo.jpg");
@@ -115,7 +122,7 @@ public class Billing extends Application {
         login_page.setStyle("-fx-font-size: 30pt; ");
 
         //Name Label
-        Label nameLabel = new Label("Username: ");
+        Label  nameLabel = new Label("Username: ");
         GridPane.setConstraints(nameLabel, 1, 1);
         nameLabel.setStyle("-fx-font-size: 12pt");
 
@@ -137,30 +144,37 @@ public class Billing extends Application {
         passwordInput.setStyle("-fx-font-size: 12pt;");
 
         Button login_button = new Button("Log In");
-//        Statement finalQuery1 = query;
+        Statement finalQuery1 = query;
         login_button.setOnAction(e->
         {
             isProper(nameInput);
             isProperPassword(passwordInput);
             if (isProper(nameInput) && isProperPassword(passwordInput)){
 
-//                ////////// SQL //////////////
-//                String selectStatement = "select exist (select Name, Password from users where Name= '"+nameInput+"' and Password= '"+passwordInput+"')";
-//                ResultSet bool;
-//                try {
-//                    assert finalQuery1 != null;
-//                    bool = finalQuery1.executeQuery(selectStatement);
-//                    if(!bool.next()){
-//                        main_window.setScene(main_scene);
-//                    }
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                }
+                ////////// SQL //////////////
+                String selectStatement = "select Name, Password from users where Name= '"+nameInput.getText()+"' and Password= '"+passwordInput.getText()+"'";
+                ResultSet bool;
+                try {
+                    assert finalQuery1 != null;
+                    bool = finalQuery1.executeQuery(selectStatement);
+                    if(!bool.next()){
+                        name_input.clear();
+                        l_name_input.clear();
+                        email_input.clear();
+                        pass_field.clear();
+                        login_content.setPadding(new Insets(10,280,110,0));
+                        main_window.setScene(main_scene);
+                    }
+                    else{
+                        nameInput.clear();
+                        passwordInput.clear();
+                        main_window.close();
+                        main_app_window.show();
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
 
-                nameInput.clear();
-                passwordInput.clear();
-                main_window.close();
-                main_app_window.show();
             }
 
         });
@@ -196,9 +210,6 @@ public class Billing extends Application {
         // adjust dimensions
         main_window.setWidth(1100);
         main_window.setHeight(680);
-
-        // main pane
-        BorderPane main_pane = new BorderPane();
 
         // main background image
         Image back_image = new Image("back_img.jpg", 1200, 780, false, false);
@@ -284,7 +295,7 @@ public class Billing extends Application {
         Button create_btn = new Button("Sign Up");
         create_btn.setStyle("-fx-opacity: 0.9;");
         // event handling for the create button
-//        Statement finalQuery = query;
+        Statement finalQuery = query;
         create_btn.setOnAction(e -> {
             isProper(name_input);
             isProper(l_name_input);
@@ -297,13 +308,13 @@ public class Billing extends Application {
                     isProper(email_input)
                     &&
                     isProperPassword(pass_field)){
-//                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
-//                try {
-//                    assert finalQuery != null;
-//                    finalQuery.executeUpdate(insertStatement);
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                }
+                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+                try {
+                    assert finalQuery != null;
+                    finalQuery.executeUpdate(insertStatement);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
                 main_window.setScene(login_scene);
             }
         });
@@ -322,8 +333,6 @@ public class Billing extends Application {
         GridPane.setMargin(create_btn, new Insets(5,10,10,90));
         GridPane.setMargin(login_btn, new Insets(5,0,10,10));
 
-        // login content
-        GridPane login_content = new GridPane();
         login_content.add(big_text, 0, 0);
         login_content.add(name_surname_field, 0, 1);
         login_content.add(em_pass_field, 0, 2);
@@ -336,7 +345,7 @@ public class Billing extends Application {
         main_window.setResizable(false);
 
         // a main scene containing 2 scenes with logo and login field
-        Scene main_scene = new Scene(main_pane);
+        main_scene = new Scene(main_pane);
 
         // adding keyboard events to the main scene
         main_scene.setOnKeyPressed(event -> {
