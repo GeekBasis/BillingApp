@@ -1,13 +1,13 @@
 package com.billing.billing;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -19,11 +19,48 @@ import javafx.stage.Stage;
 
 public class Billing extends Application {
 
-    Stage main_window;
-
+    Stage main_window, main_app_window;
+    TextField name_input, l_name_input, email_input;
+    PasswordField pass_field;
 
     @Override
     public void start(Stage stage) {
+
+        // prepare a logo
+        Image icon = new Image("Logo.jpg");
+
+        // Main App Stage
+        main_app_window = new Stage();
+
+        // set the logo for the main app window
+        main_app_window.getIcons().add(icon);
+
+        // give the title
+        main_app_window.setTitle("GeekBasis");
+
+        // adjust dimensions
+        main_app_window.setWidth(1100);
+        main_app_window.setHeight(680);
+
+
+        // Main App Scene Content
+        BorderPane main_app = new BorderPane();
+
+        // Label of the signIn scene
+        Label hello_label = new Label(" HELLO\n");
+
+        // change positioning
+        BorderPane.setAlignment(hello_label, Pos.CENTER);
+        hello_label.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR, 45));
+
+        main_app.setLeft(addVBox());
+        main_app.setCenter(addGridPane1());
+        main_app.setRight(addGridPane2());
+
+
+        Scene main_app_scene = new Scene(main_app);
+        main_app_window.setScene(main_app_scene);
+
 
         // Login Scene content
         VBox content = new VBox();
@@ -34,9 +71,7 @@ public class Billing extends Application {
 
 	    // Main window of the registration and login
         main_window = stage;
-     
-        // set the logo
-        Image icon = new Image("Logo.jpg");
+        // set the logo for the registration window
         main_window.getIcons().add(icon);
 
         // give the title
@@ -94,14 +129,14 @@ public class Billing extends Application {
         GridPane name_surname_field = new GridPane();
 
         // name input
-        TextField name_input = new TextField();
+        name_input = new TextField();
         name_input.setPromptText("Name");
         name_input.setPrefHeight(30);
         name_input.setStyle("-fx-opacity: 0.7;");
         name_surname_field.add(name_input, 0, 0);
 
         // last name input
-        TextField l_name_input = new TextField();
+        l_name_input = new TextField();
         l_name_input.setPromptText("Last Name");
         l_name_input.setPrefHeight(30);
         l_name_input.setStyle("-fx-opacity: 0.7;");
@@ -115,13 +150,13 @@ public class Billing extends Application {
         VBox em_pass_field = new VBox();
 
         // email_input
-        TextField email_input = new TextField();
+        email_input = new TextField();
         email_input.setPromptText("Email");
         email_input.setPrefHeight(30);
         email_input.setStyle("-fx-opacity: 0.7;");
 
         // password input
-        PasswordField pass_field = new PasswordField();
+        pass_field = new PasswordField();
         pass_field.setPromptText("Password");
         pass_field.setPrefHeight(30);
         pass_field.setStyle("-fx-opacity: 0.7;");
@@ -137,18 +172,17 @@ public class Billing extends Application {
         // Create Account button
         // create sign_in and create_account buttons
         Button create_btn = new Button("Sign Up");
-        create_btn.setOnAction(e -> System.out.println("Creating"));
         create_btn.setStyle("-fx-opacity: 0.9;");
         // event handling for the create button
         create_btn.setOnAction(e -> {
             isProper(name_input, name_input.getText());
             isProper(l_name_input, l_name_input.getText());
-        });
-        create_btn.setStyle("-fx-opacity: 0.9;");
-        // event handling for the create button
-        create_btn.setOnAction(e -> {
-            isProper(name_input, name_input.getText());
-            isProper(l_name_input, l_name_input.getText());
+            if(isProper(name_input, name_input.getText())
+                    &&
+                    isProper(l_name_input, l_name_input.getText())){
+                    main_window.close();
+                    main_app_window.show();
+            }
         });
 
         // Login Button
@@ -192,9 +226,13 @@ public class Billing extends Application {
             name_input.setPromptText("Name");
             l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
             name_input.setPromptText("Last Name");
+            cleaner(); // cleans the inputted fields
             main_window.setScene(main_scene);
 
         });
+
+        // change the cursor
+        main_scene.setCursor(Cursor.HAND);
 
         // display the stage with the scene
         main_window.setScene(main_scene);
@@ -232,6 +270,150 @@ public class Billing extends Application {
             return true;
         }
     }
+
+    public VBox addVBox() {
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(20));
+        vbox.setSpacing(8);
+        vbox.setStyle("-fx-background-color:  #2d333b;");
+
+        Text title = new Text("Data");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        title.setStyle("-fx-font-color:#adbac7;");
+        vbox.getChildren().add(title);
+
+        Hyperlink[] options = new Hyperlink[]{
+                new Hyperlink("MyProfile"),
+                new Hyperlink("Settings"),
+                new Hyperlink("Create New Account"),
+                new Hyperlink("Exit")};
+
+        // hyperlinks in the main app
+        options[0].setOnAction(e->options[0].setVisited(false));
+        options[1].setOnAction(e->options[1].setVisited(false));
+        //create new account option
+        options[2].setOnAction(e->{
+            main_app_window.close();
+            cleaner(); // cleans the input fields
+            main_window.show();
+            options[2].setVisited(false);
+        });
+        //exit option
+        options[3].setOnAction(e->{
+            main_app_window.close();
+        });
+
+        for (int i = 0; i < 4; i++) {
+            int num = i;
+            VBox.setMargin(options[i], new Insets(0, 0, 0, 16));
+            vbox.getChildren().add(options[i]);
+            options[i].setOnMouseMoved(e->options[num].setStyle("-fx-font-color:white;"));
+        }
+        return vbox;
+    }
+
+
+    public GridPane addGridPane1() {
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 10, 0, 10));
+        grid.setStyle("-fx-background-color:  #39166c;");
+
+
+        // Category in column 2, row 1
+        Text category = new Text("Sales:");
+        category.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
+        grid.add(category, 1, 0);
+
+        // Title in column 3, row 1
+        Text chartTitle = new Text("Current Year");
+        chartTitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
+        grid.add(chartTitle, 2, 0);
+
+        // Subtitle in columns 2-3, row 2
+        Text chartSubtitle = new Text("Goods and Services");
+        chartSubtitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,25));
+
+        grid.add(chartSubtitle, 1, 1, 2, 1);
+
+        // House icon in column 1, rows 1-2
+
+
+        // Left label in column 1 (bottom), row 3
+        Text goodsPercent = new Text("Goods");
+        goodsPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,19));
+
+        GridPane.setValignment(goodsPercent, VPos.BOTTOM);
+        grid.add(goodsPercent, 0, 2);
+
+        // Chart in columns 2-3, row 3
+
+
+        // Right label in column 4 (top), row 3
+        Text servicesPercent = new Text("Bills");
+        GridPane.setValignment(servicesPercent, VPos.TOP);
+        servicesPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
+
+        grid.add(servicesPercent, 3, 2);
+
+        return grid;
+    }
+
+    public GridPane addGridPane2() {
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(0, 10, 0, 10));
+        grid.setStyle("-fx-background-color:  #04416c;");
+
+
+        // Category in column 2, row 1
+        Text category = new Text("Sales:");
+        category.setFont(Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR,22));
+        grid.add(category, 1, 0);
+
+        // Title in column 3, row 1
+        Text chartTitle = new Text("Current Year");
+        chartTitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
+        grid.add(chartTitle, 2, 0);
+
+        // Subtitle in columns 2-3, row 2
+        Text chartSubtitle = new Text("Goods and Services");
+        chartSubtitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,25));
+
+        grid.add(chartSubtitle, 1, 1, 2, 1);
+
+        // House icon in column 1, rows 1-2
+
+
+        // Left label in column 1 (bottom), row 3
+        Text goodsPercent = new Text("Goods");
+        goodsPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,19));
+
+        GridPane.setValignment(goodsPercent, VPos.BOTTOM);
+        grid.add(goodsPercent, 0, 2);
+
+        // Chart in columns 2-3, row 3
+
+
+        // Right label in column 4 (top), row 3
+        Text servicesPercent = new Text("Bills");
+        GridPane.setValignment(servicesPercent, VPos.TOP);
+        servicesPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
+
+        grid.add(servicesPercent, 3, 2);
+
+        return grid;
+    }
+
+    public void cleaner(){
+        name_input.clear();
+        l_name_input.clear();
+        email_input.clear();
+        pass_field.clear();
+    }
+
 
     public static void main(String[] args) {
         launch();
