@@ -1,5 +1,7 @@
 package com.billing.billing;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.sql.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -12,6 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -26,7 +30,7 @@ public class Billing extends Application {
     Scene login_scene, main_scene;
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws MalformedURLException {
 
         // main pane
         BorderPane main_pane = new BorderPane();
@@ -37,7 +41,7 @@ public class Billing extends Application {
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "xxxx", "xxxxxx");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -64,17 +68,17 @@ public class Billing extends Application {
         // adjust dimensions
         main_app_window.setWidth(1100);
         main_app_window.setHeight(680);
+        main_app_window.setResizable(false);
 
         // Main App Scene Content
         BorderPane main_app = new BorderPane();
 
         main_app.setLeft(addVBox());
-        main_app.setCenter(addGridPane1());
-
+        main_app.setCenter(addVboxPane1());
 
         Scene main_app_scene = new Scene(main_app);
 
-        // adding keyboard events to the main app scene
+        // adding keyboard events to the main ap    p scene
         main_app_scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (closeProgram()) {
@@ -84,6 +88,8 @@ public class Billing extends Application {
         });
 
         main_app_window.setScene(main_app_scene);
+        // adding css styling
+        main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
 
         // Login Scene content
         BorderPane main_pane_login = new BorderPane();
@@ -480,19 +486,22 @@ public class Billing extends Application {
             }
     }
 
+    // main app pay window handle
     private void payProgram() {
         BillPayBox.PayDisplay();
     }
 
+    // main app navigation
     public VBox addVBox() {
+
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(20));
         vbox.setSpacing(8);
-        vbox.setStyle("-fx-background-color:  #2d333b;");
+        vbox.setStyle("-fx-background-color: #22272e");
 
-        Text title = new Text("Data");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        title.setStyle("-fx-font-color:#adbac7;");
+        Text title = new Text("βillng");
+        title.setFont(Font.font("Century Gothic", FontWeight.BOLD, 25));
+        title.setStyle("-fx-fill: #a6b5c5;");
         vbox.getChildren().add(title);
 
         Hyperlink[] options = new Hyperlink[]{
@@ -528,54 +537,64 @@ public class Billing extends Application {
             int num = i;
             VBox.setMargin(options[i], new Insets(0, 0, 0, 16));
             vbox.getChildren().add(options[i]);
-            options[i].setOnMouseMoved(e->options[num].setStyle("-fx-font-color:white;"));
         }
         return vbox;
     }
 
+    // main app details
+    public VBox addVboxPane1() {
 
+        // main app background image
+        Image main_app_back_image = new Image("main_app_back_img.jpg", 1200, 780, false, false);
+        BackgroundImage main_app_bImg = new BackgroundImage(main_app_back_image,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
+        Background main_app_b_ground = new Background(main_app_bImg);
 
+        VBox vbox_content = new VBox(10);
+        vbox_content.getChildren().add(addGrdGraph());
+        vbox_content.getChildren().add(addBrdHist());
 
-    public GridPane addGridPane1() {
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(0, 10, 0, 10));
-        grid.setStyle("-fx-background-color:  #39166c;");
+        vbox_content.setPadding(new Insets(0, 10, 0, 10));
+        vbox_content.setBackground(main_app_b_ground);
+        return vbox_content;
+    }
 
+    // layout for graphs
+    public GridPane addGrdGraph() {
 
-        // Category in column 2, row 1
-        Text category = new Text("Sales:");
-        category.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
-        grid.add(category, 1, 0);
+        // containers
+        Rectangle[] container = new Rectangle[]{
+            new Rectangle(260, 155),
+            new Rectangle(260, 155),
+            new Rectangle(260, 155),
+        };
 
-        // Title in column 3, row 1
-        Text chartTitle = new Text("Current Year");
-        chartTitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
-        grid.add(chartTitle, 2, 0);
+        GridPane graph_grid = new GridPane();
+        graph_grid.setHgap(30);
+        graph_grid.add(container[0], 0,0);
+        graph_grid.add(container[1], 1,0);
+        graph_grid.add(container[2], 2,0);
+        for(int i = 0; i<3; i++){
+            GridPane.setMargin(container[i], new Insets(25,0,0,25));
+        }
 
-        // Subtitle in columns 2-3, row 2
-        Text chartSubtitle = new Text("Goods and Services");
-        chartSubtitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,25));
+        return graph_grid;
+    }
 
-        grid.add(chartSubtitle, 1, 1, 2, 1);
+    // layout for history
+    public BorderPane addBrdHist(){
+        // history container
+        BorderPane brdhist = new BorderPane();
 
-        // Left label in column 1 (bottom), row 3
-        Text goodsPercent = new Text("Goods");
-        goodsPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,19));
+        // just for a history container
+        Rectangle history_rect = new Rectangle(892, 335);
+        BorderPane.setMargin(history_rect, new Insets(50,0,0,8));
+        brdhist.setCenter(history_rect);
 
-        GridPane.setValignment(goodsPercent, VPos.BOTTOM);
-        grid.add(goodsPercent, 0, 2);
-
-
-        // Right label in column 4 (top), row 3
-        Text servicesPercent = new Text("Bills");
-        GridPane.setValignment(servicesPercent, VPos.TOP);
-        servicesPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
-
-        grid.add(servicesPercent, 3, 2);
-
-        return grid;
+        return brdhist;
     }
 
     // cleans text and password input fields when called
@@ -585,7 +604,6 @@ public class Billing extends Application {
         email_input.clear();
         pass_field.clear();
     }
-
 
     public static void main(String[] args) {
         launch();
