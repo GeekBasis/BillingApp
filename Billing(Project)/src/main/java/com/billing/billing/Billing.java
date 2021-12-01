@@ -37,11 +37,11 @@ public class Billing extends Application {
 
         // login content
         GridPane login_content = new GridPane();
-
+/*
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/xxxx", "xxxx", "@xxxx");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -52,7 +52,7 @@ public class Billing extends Application {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
+*/
         // prepare a logo
         Image icon = new Image("Logo.jpg");
 
@@ -89,8 +89,9 @@ public class Billing extends Application {
 
         main_app_window.setScene(main_app_scene);
         // adding css styling
-        main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
-
+        //main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
+        ////////////////  PUT YOUR OWN PATH ABOVE ////////////////////////////
+        
         // Login Scene content
         BorderPane main_pane_login = new BorderPane();
 
@@ -150,6 +151,7 @@ public class Billing extends Application {
             isProperPassword(passwordInput);
             if (isProper(nameInput) && isProperPassword(passwordInput)){
 
+                /*
                 ////////// SQL //////////////
                 String selectStatement = "select Name, Password from users where Name= '"+nameInput.getText()+"' and Password= '"+passwordInput.getText()+"'";
                 ResultSet bool;
@@ -169,16 +171,17 @@ public class Billing extends Application {
                         nameInput.setPromptText("Name");
                         passwordInput.setStyle("-fx-border-color: none;");
                         passwordInput.setPromptText("Password");
+                        */
                         nameInput.clear();
                         passwordInput.clear();
                         main_window.close();
                         main_app_window.show();
-                    }
-                } catch (SQLException ex) {
+                    //}
+                } /*catch (SQLException ex) {
                     ex.printStackTrace();
                 }
 
-            }
+            }*/
 
         });
         Button create_acc_btn = new Button("Sign Up");
@@ -341,13 +344,14 @@ public class Billing extends Application {
                     isProperEmail(email_input)
                     &&
                     isProperPassword(pass_field)){
-                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+             /*   String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
                 try {
                     assert finalQuery != null;
                     finalQuery.executeUpdate(insertStatement);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+                */
                 main_window.close();
                 main_window.setScene(login_scene);
                 main_window.show();
