@@ -37,7 +37,7 @@ public class Billing extends Application {
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "xxxx", "xxxxxx");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
