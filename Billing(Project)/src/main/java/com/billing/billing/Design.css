@@ -1,0 +1,15 @@
+.hyperlink {
+    -fx-text-fill: #a0b4d0;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #3784e9;
+    -fx-underline: false;
+}
+
+.container{
+    -fx-border-radius: 10px;
+    -fx-opacity: 0.6;
+}
