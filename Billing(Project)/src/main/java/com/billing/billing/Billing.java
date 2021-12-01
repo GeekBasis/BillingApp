@@ -37,7 +37,7 @@ public class Billing extends Application {
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:xxxx/xxxx", "xxxx", "xxxx");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -68,16 +68,9 @@ public class Billing extends Application {
         // Main App Scene Content
         BorderPane main_app = new BorderPane();
 
-        // Label of the signIn scene
-        Label hello_label = new Label(" HELLO\n");
-
-        // change positioning
-        BorderPane.setAlignment(hello_label, Pos.CENTER);
-        hello_label.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR, 45));
-
         main_app.setLeft(addVBox());
         main_app.setCenter(addGridPane1());
-        main_app.setRight(addGridPane2());
+
 
         Scene main_app_scene = new Scene(main_app);
 
@@ -117,8 +110,7 @@ public class Billing extends Application {
 
         //Header Text
         Text login_page = new Text("Login Page");
-        login_page.setX(50);
-        login_page.setY(40);
+        GridPane.setConstraints(login_page, 0, 0);
         login_page.setStyle("-fx-font-size: 30pt; ");
 
         //Name Label
@@ -143,7 +135,8 @@ public class Billing extends Application {
         GridPane.setConstraints(passwordInput,  2, 2);
         passwordInput.setStyle("-fx-font-size: 12pt;");
 
-        Button login_button = new Button("Log In");
+        // sign in button
+        Button login_button = new Button("Sign In");
         Statement finalQuery1 = query;
         login_button.setOnAction(e->
         {
@@ -158,14 +151,18 @@ public class Billing extends Application {
                     assert finalQuery1 != null;
                     bool = finalQuery1.executeQuery(selectStatement);
                     if(!bool.next()){
-                        name_input.clear();
-                        l_name_input.clear();
-                        email_input.clear();
-                        pass_field.clear();
-                        login_content.setPadding(new Insets(10,280,110,0));
-                        main_window.setScene(main_scene);
+                        nameInput.clear();
+                        passwordInput.clear();
+                        nameInput.setStyle("-fx-border-color: red;-fx-font-color: red;");
+                        nameInput.setPromptText("Wrong data entered");
+                        passwordInput.setStyle("-fx-border-color: red;-fx-font-color: red;");
+                        passwordInput.setPromptText("Wrong data entered");
                     }
                     else{
+                        nameInput.setStyle("-fx-border-color: none;");
+                        nameInput.setPromptText("Name");
+                        passwordInput.setStyle("-fx-border-color: none;");
+                        passwordInput.setPromptText("Password");
                         nameInput.clear();
                         passwordInput.clear();
                         main_window.close();
@@ -179,11 +176,35 @@ public class Billing extends Application {
 
         });
         Button create_acc_btn = new Button("Sign Up");
-        GridPane.setConstraints(login_button, 2, 3);
-        GridPane.setConstraints(create_acc_btn, 3,3);
+        // add an action to the sign-up button
+        create_acc_btn.setOnAction(e->{
+
+            main_window.close();
+            main_window.setScene(main_scene);
+            nameInput.setStyle("-fx-border-color: none;");
+            nameInput.setPromptText("Name");
+            passwordInput.setStyle("-fx-border-color: none;");
+            passwordInput.setPromptText("Password");
+            // Clear fields of name and lastname
+            name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            name_input.setPromptText("Name");
+            l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            name_input.setPromptText("Last Name");
+            cleaner(); // cleans the inputted fields
+            main_window.show();
+            main_window.setTitle("GeekBasis \"Sign Up\"");
+
+
+        });
+
+        // A layout for buttons
+        HBox btn_layout = new HBox(5);
+        btn_layout.getChildren().addAll(login_button, create_acc_btn);
+
+        GridPane.setConstraints(btn_layout, 2, 3);
         login_button.setStyle("-fx-font-size: 12pt");
         create_acc_btn.setStyle("-fx-font-size: 12pt");
-        grid.getChildren().addAll(login_page, nameLabel, nameInput, passwordLabel, passwordInput, login_button, create_acc_btn);
+        grid.getChildren().addAll(login_page, nameLabel, nameInput, passwordLabel, passwordInput, btn_layout);
 
         main_pane_login.setCenter(grid);
         main_pane_login.setBottom(imageView_login);
@@ -193,7 +214,7 @@ public class Billing extends Application {
         // the scene of the login page
         login_scene = new Scene(main_pane_login, 1200, 700);
 
-	    // Main window of the registration and login
+        // Main window of the registration and login
         main_window = stage;
         // set the logo for the registration window
         main_window.getIcons().add(icon);
@@ -205,6 +226,12 @@ public class Billing extends Application {
         main_window.setOnCloseRequest(e-> {
             e.consume(); // consumes the close event
             if(closeProgram()) main_window.close();
+        });
+
+        // what is going to happen when x is pressed? in the main app
+        main_app_window.setOnCloseRequest(e-> {
+            e.consume(); // consumes the close event
+            if(closeProgram()) main_app_window.close();
         });
 
         // adjust dimensions
@@ -299,13 +326,13 @@ public class Billing extends Application {
         create_btn.setOnAction(e -> {
             isProper(name_input);
             isProper(l_name_input);
-            isProper(email_input);
+            isProperEmail(email_input);
             isProperPassword(pass_field);
             if(isProper(name_input)
                     &&
                     isProper(l_name_input)
                     &&
-                    isProper(email_input)
+                    isProperEmail(email_input)
                     &&
                     isProperPassword(pass_field)){
                 String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
@@ -315,15 +342,19 @@ public class Billing extends Application {
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
+                main_window.close();
                 main_window.setScene(login_scene);
+                main_window.show();
             }
         });
 
         // Login Button
         Button login_btn = new Button("Sign In");
         login_btn.setOnAction(e -> {
-            main_window.setTitle("GeekBasis \"Sign In\"");
+            main_window.close();
             main_window.setScene(login_scene);
+            main_window.setTitle("GeekBasis \"Sign In\"");
+            main_window.show();
         });
 
         btn_fld.add(create_btn, 0,0);
@@ -377,24 +408,6 @@ public class Billing extends Application {
                 }
             }
         });
-
-        // add an action to the sign-up button
-        create_acc_btn.setOnAction(e->
-        {
-
-            main_window.setTitle("GeekBasis \"Sign Up\"");
-            login_content.setPadding(new Insets(0, 280, 150, 0));
-
-            // Clear fields of name and lastname
-            name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
-            name_input.setPromptText("Name");
-            l_name_input.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
-            name_input.setPromptText("Last Name");
-            cleaner(); // cleans the inputted fields
-            main_window.setScene(main_scene);
-
-        });
-
         // change the cursor
         main_scene.setCursor(Cursor.HAND);
 
@@ -435,6 +448,22 @@ public class Billing extends Application {
         }
     }
 
+    // for checking for a valid input of email
+    private boolean isProperEmail(TextField email_input_field){
+        if  (email_input_field.getText()==null
+                || email_input_field.getText().equals("")
+                || email_input_field.getText().equals("Invalid input")) {
+            email_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
+            email_input_field.clear();
+            email_input_field.setPromptText("Invalid input");
+            return false;
+        }
+        else {
+            email_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            return true;
+        }
+    }
+
     // for checking for a valid input of password
     private boolean isProperPassword(PasswordField password_input_field){
             if  (password_input_field.getText()==null
@@ -451,6 +480,9 @@ public class Billing extends Application {
             }
     }
 
+    private void payProgram() {
+        BillPayBox.PayDisplay();
+    }
 
     public VBox addVBox() {
         VBox vbox = new VBox();
@@ -464,18 +496,23 @@ public class Billing extends Application {
         vbox.getChildren().add(title);
 
         Hyperlink[] options = new Hyperlink[]{
-                new Hyperlink("MyProfile"),
-                new Hyperlink("Settings"),
-                new Hyperlink("Create New Account"),
+                new Hyperlink("Profile"),
+                new Hyperlink("Pay"),
+                new Hyperlink("New Account"),
                 new Hyperlink("Log Out")};
 
         // hyperlinks in the main app
         options[0].setOnAction(e->options[0].setVisited(false));
-        options[1].setOnAction(e->options[1].setVisited(false));
+        options[1].setOnAction(e-> {
+            payProgram();
+            options[1].setVisited(false);
+        });
         //create new account option
         options[2].setOnAction(e->{
             main_app_window.close();
             cleaner(); // cleans the input fields
+            main_window.close();
+            main_window.setScene(main_scene);
             main_window.show();
             options[2].setVisited(false);
         });
@@ -484,6 +521,7 @@ public class Billing extends Application {
             main_app_window.close();
             main_window.setScene(login_scene);
             main_window.show();
+            options[3].setVisited(false);
         });
 
         for (int i = 0; i < 4; i++) {
@@ -494,6 +532,8 @@ public class Billing extends Application {
         }
         return vbox;
     }
+
+
 
 
     public GridPane addGridPane1() {
@@ -520,64 +560,12 @@ public class Billing extends Application {
 
         grid.add(chartSubtitle, 1, 1, 2, 1);
 
-        // House icon in column 1, rows 1-2
-
-
         // Left label in column 1 (bottom), row 3
         Text goodsPercent = new Text("Goods");
         goodsPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,19));
 
         GridPane.setValignment(goodsPercent, VPos.BOTTOM);
         grid.add(goodsPercent, 0, 2);
-
-        // Chart in columns 2-3, row 3
-
-
-        // Right label in column 4 (top), row 3
-        Text servicesPercent = new Text("Bills");
-        GridPane.setValignment(servicesPercent, VPos.TOP);
-        servicesPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
-
-        grid.add(servicesPercent, 3, 2);
-
-        return grid;
-    }
-
-    public GridPane addGridPane2() {
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(0, 10, 0, 10));
-        grid.setStyle("-fx-background-color:  #04416c;");
-
-
-        // Category in column 2, row 1
-        Text category = new Text("Sales:");
-        category.setFont(Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR,22));
-        grid.add(category, 1, 0);
-
-        // Title in column 3, row 1
-        Text chartTitle = new Text("Current Year");
-        chartTitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,22));
-        grid.add(chartTitle, 2, 0);
-
-        // Subtitle in columns 2-3, row 2
-        Text chartSubtitle = new Text("Goods and Services");
-        chartSubtitle.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,25));
-
-        grid.add(chartSubtitle, 1, 1, 2, 1);
-
-        // House icon in column 1, rows 1-2
-
-
-        // Left label in column 1 (bottom), row 3
-        Text goodsPercent = new Text("Goods");
-        goodsPercent.setFont(Font.font("Century Gothic", FontWeight.BOLD, FontPosture.REGULAR,19));
-
-        GridPane.setValignment(goodsPercent, VPos.BOTTOM);
-        grid.add(goodsPercent, 0, 2);
-
-        // Chart in columns 2-3, row 3
 
 
         // Right label in column 4 (top), row 3
