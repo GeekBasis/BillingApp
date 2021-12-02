@@ -9,7 +9,31 @@
     -fx-underline: false;
 }
 
-.container{
-    -fx-border-radius: 10px;
-    -fx-opacity: 0.6;
+.graph-view{
+    -fx-background-color: white;
+    -fx-arc-width: 45px;
+    -fx-arc-height: 45px;
+    -fx-background-radius: 50px;
+    -fx-opacity: 0.8;
+}
+
+.history-view{
+    -fx-background-color: white;
+    -fx-arc-width: 45px;
+    -fx-arc-height: 45px;
+    -fx-opacity: 0.8;
+}
+
+.show-stats-pie{
+    -fx-pref-width: 420;
+    -fx-pref-height: 270;
+    -fx-min-width: 420;
+    -fx-min-height: 270;
+    -fx-max-width: 420;
+    -fx-max-height: 270;
+}
+
+.pie-data{
+    -fx-font-family: "Century Gothic";
+    -fx-font-size: 20;
 }
