@@ -3,18 +3,22 @@ package com.billing.billing;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.sql.*;
+import java.util.Arrays;
+
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -28,20 +32,24 @@ public class Billing extends Application {
     TextField name_input, l_name_input, email_input;
     PasswordField pass_field;
     Scene login_scene, main_scene;
+    PieChart show_stats;
 
     @Override
     public void start(Stage stage) throws MalformedURLException {
+
+        // PieChart for the main app
+        show_stats = new PieChart();
 
         // main pane
         BorderPane main_pane = new BorderPane();
 
         // login content
         GridPane login_content = new GridPane();
-/*
+
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/xxxx", "xxxx", "@xxxx");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -52,7 +60,7 @@ public class Billing extends Application {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-*/
+
         // prepare a logo
         Image icon = new Image("Logo.jpg");
 
@@ -89,9 +97,8 @@ public class Billing extends Application {
 
         main_app_window.setScene(main_app_scene);
         // adding css styling
-        //main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
-        ////////////////  PUT YOUR OWN PATH ABOVE ////////////////////////////
-        
+        main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
+
         // Login Scene content
         BorderPane main_pane_login = new BorderPane();
 
@@ -151,7 +158,6 @@ public class Billing extends Application {
             isProperPassword(passwordInput);
             if (isProper(nameInput) && isProperPassword(passwordInput)){
 
-                /*
                 ////////// SQL //////////////
                 String selectStatement = "select Name, Password from users where Name= '"+nameInput.getText()+"' and Password= '"+passwordInput.getText()+"'";
                 ResultSet bool;
@@ -171,17 +177,16 @@ public class Billing extends Application {
                         nameInput.setPromptText("Name");
                         passwordInput.setStyle("-fx-border-color: none;");
                         passwordInput.setPromptText("Password");
-                        */
                         nameInput.clear();
                         passwordInput.clear();
                         main_window.close();
                         main_app_window.show();
-                    //}
-                } /*catch (SQLException ex) {
+                    }
+                } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
 
-            }*/
+            }
 
         });
         Button create_acc_btn = new Button("Sign Up");
@@ -344,14 +349,13 @@ public class Billing extends Application {
                     isProperEmail(email_input)
                     &&
                     isProperPassword(pass_field)){
-             /*   String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
                 try {
                     assert finalQuery != null;
                     finalQuery.executeUpdate(insertStatement);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
-                */
                 main_window.close();
                 main_window.setScene(login_scene);
                 main_window.show();
@@ -503,7 +507,7 @@ public class Billing extends Application {
         vbox.setSpacing(8);
         vbox.setStyle("-fx-background-color: #22272e");
 
-        Text title = new Text("βillng");
+        Text title = new Text("βilling");
         title.setFont(Font.font("Century Gothic", FontWeight.BOLD, 25));
         title.setStyle("-fx-fill: #a6b5c5;");
         vbox.getChildren().add(title);
@@ -538,7 +542,6 @@ public class Billing extends Application {
         });
 
         for (int i = 0; i < 4; i++) {
-            int num = i;
             VBox.setMargin(options[i], new Insets(0, 0, 0, 16));
             vbox.getChildren().add(options[i]);
         }
@@ -569,21 +572,26 @@ public class Billing extends Application {
     // layout for graphs
     public GridPane addGrdGraph() {
 
-        // containers
+        // holds graphs
+        GridPane graph_grid = new GridPane();
+        graph_grid.setHgap(22);
+
+        // history container
         Rectangle[] container = new Rectangle[]{
-            new Rectangle(260, 155),
-            new Rectangle(260, 155),
             new Rectangle(260, 155),
         };
 
-        GridPane graph_grid = new GridPane();
-        graph_grid.setHgap(30);
-        graph_grid.add(container[0], 0,0);
-        graph_grid.add(container[1], 1,0);
-        graph_grid.add(container[2], 2,0);
-        for(int i = 0; i<3; i++){
-            GridPane.setMargin(container[i], new Insets(25,0,0,25));
-        }
+        // data for the pie chart
+        String[] where = {"Internet", "Loan", "Mobile Operators", "Utility"};
+        int[] amount = {99000, 361000, 15000, 200000};
+        Pane pie_chart = addPieChart(where, amount);
+
+        // data for the bar chart
+        String[] date = {"Nov 30", "Dec 1", "Dec 2"};
+        BarChart bar_chart = addBarChart(date);
+
+        graph_grid.add(bar_chart, 0,0);
+        graph_grid.add(pie_chart, 1,0);
 
         return graph_grid;
     }
@@ -591,14 +599,112 @@ public class Billing extends Application {
     // layout for history
     public BorderPane addBrdHist(){
         // history container
-        BorderPane brdhist = new BorderPane();
+        BorderPane brd_hist = new BorderPane();
 
         // just for a history container
-        Rectangle history_rect = new Rectangle(892, 335);
-        BorderPane.setMargin(history_rect, new Insets(50,0,0,8));
-        brdhist.setCenter(history_rect);
+        Rectangle history_rect = new Rectangle(892, 310);
+        BorderPane.setMargin(history_rect, new Insets(0,0,0,8));
+        brd_hist.setCenter(history_rect);
+        history_rect.getStyleClass().add("history-view");
 
-        return brdhist;
+        return brd_hist;
+    }
+
+    // Pie chart generation
+    public Pane addPieChart(String[] prop_name, int[] prop_num){
+
+        // for placing pie chart and data
+        Pane pie_data = new Pane();
+
+        // adding a pie chart
+        PieChart show_stats = new PieChart();
+        PieChart.Data slice_1 = new PieChart.Data(prop_name[0], prop_num[0]);
+        PieChart.Data slice_2 = new PieChart.Data(prop_name[1], prop_num[1]);
+        PieChart.Data slice_3 = new PieChart.Data(prop_name[2], prop_num[2]);
+        PieChart.Data slice_4 = new PieChart.Data(prop_name[3], prop_num[3]);
+        // add data into pie chart
+        show_stats.getData().add(slice_1);
+        show_stats.getData().add(slice_2);
+        show_stats.getData().add(slice_3);
+        show_stats.getData().add(slice_4);
+        // additional properties
+        show_stats.setLabelsVisible(false);
+        show_stats.setLegendSide(Side.RIGHT);
+        show_stats.getStyleClass().add("show-stats-pie");
+
+        show_stats.setTitle("Payments for today");
+
+        // a label for event handling
+        Text caption_amount = new Text();
+        caption_amount.getStyleClass().add("pie-data");
+
+        // what happens when a mouse is entered
+        show_stats.getData().forEach(data -> data.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, e ->{
+            // for formatting with commas and setting
+            caption_amount.setText(String.format("%,d", (int)data.getPieValue()) + " UZS");
+            caption_amount.setX(e.getSceneX() - 640);
+            caption_amount.setY(e.getSceneY() + 10);
+        }));
+
+        // what happens when mouse is exited
+        show_stats.getData().forEach(data -> data.getNode().addEventHandler(MouseEvent.MOUSE_EXITED, e ->{
+            // clear the text
+            caption_amount.setText("");
+        }));
+
+        // add components
+        pie_data.getChildren().addAll(show_stats, caption_amount);
+
+        return pie_data;
+    }
+
+    // Bar chart generation
+    public BarChart addBarChart(String[] x_axis_data){
+
+        // xAxis
+        CategoryAxis xAxis = new CategoryAxis();
+        //yAxis
+        NumberAxis yAxis = new NumberAxis();
+
+        //Creating the Bar chart
+        BarChart<String, Number> payment_info_bar = new BarChart<>(xAxis, yAxis);
+        payment_info_bar.setTitle("Payments on dates");
+
+        //Prepare XYChart.Series objects by setting data
+        // For the Internet
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        series1.setName("Inter");
+        series1.getData().add(new XYChart.Data<>(x_axis_data[0], 99000.0));
+        series1.getData().add(new XYChart.Data<>(x_axis_data[1], 100000.0));
+        series1.getData().add(new XYChart.Data<>(x_axis_data[2], 15000.0));
+
+        // For the Loan
+        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
+        series2.setName("Loan");
+        series2.getData().add(new XYChart.Data<>(x_axis_data[0], 120000.0));
+        series2.getData().add(new XYChart.Data<>(x_axis_data[1], 50000.0));
+        series2.getData().add(new XYChart.Data<>(x_axis_data[2], 45000.0));
+
+        // For the Mobile Operators
+        XYChart.Series<String, Number> series3 = new XYChart.Series<>();
+        series3.setName("Mob.Oper");
+        series3.getData().add(new XYChart.Data<>(x_axis_data[0], 256000));
+        series3.getData().add(new XYChart.Data<>(x_axis_data[1], 165000));
+        series3.getData().add(new XYChart.Data<>(x_axis_data[2], 5000));
+
+        // For the Utility
+        XYChart.Series<String, Number> series4 = new XYChart.Series<>();
+        series4.setName("Utility");
+        series4.getData().add(new XYChart.Data<>(x_axis_data[0], 325000));
+        series4.getData().add(new XYChart.Data<>(x_axis_data[1], 175000));
+        series4.getData().add(new XYChart.Data<>(x_axis_data[2], 50000));
+
+        // Setting the data to bar chart
+        payment_info_bar.getData().addAll(series1, series2, series3, series4);
+
+
+
+        return payment_info_bar;
     }
 
     // cleans text and password input fields when called
