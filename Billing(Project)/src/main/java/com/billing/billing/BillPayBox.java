@@ -60,7 +60,7 @@ public class BillPayBox {
         // pay window properties
         Stage bill_pay = new Stage();
         bill_pay.getIcons().add(icon);
-        bill_pay.setHeight(435);
+        bill_pay.setHeight(300);
         bill_pay.setWidth(240);
         bill_pay.setResizable(false);
 
@@ -93,43 +93,6 @@ public class BillPayBox {
         Font font = Font.font("Century Gothic", FontWeight.BOLD, 24);
         btn_pay.setFont(font);
 
-        //radio buttons
-        final ToggleGroup group = new ToggleGroup();
-        RadioButton sum = new RadioButton(" UZS ");
-        sum.setToggleGroup(group);
-        sum.setUserData("UZS");
-
-        RadioButton euro = new RadioButton(" EUR ");
-        euro.setToggleGroup(group);
-        euro.setUserData("EUR");
-
-        RadioButton dollar = new RadioButton(" USD ");
-        dollar.setToggleGroup(group);
-        dollar.setUserData("USD");
-
-        // when a choice is chosen from the group
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            public void changed(ObservableValue<? extends Toggle> ov,
-                                Toggle old_toggle, Toggle new_toggle) {
-                if (group.getSelectedToggle() != null) {
-                    System.out.println(group.getSelectedToggle().getUserData().toString());
-                }
-            }
-        });
-
-        HBox hbox = new HBox();
-        VBox vbox = new VBox();
-
-        vbox.getChildren().add(sum);
-        vbox.getChildren().add(euro);
-        vbox.getChildren().add(dollar);
-        vbox.setSpacing(10);
-
-        hbox.getChildren().add(vbox);
-        hbox.setSpacing(50);
-        hbox.setPadding(new Insets(20, 10, 10, 20));
-        hbox.setCenterShape(true);
-
         HBox money_amount = new HBox(money);
 
         Label label1 = new Label("Payment");
@@ -150,10 +113,7 @@ public class BillPayBox {
         gridPane.add(name_specific, 1, 3);
         //  gridPane.add(label4, 0, 4);
         gridPane.add(money_amount, 1, 4);
-
-        // gridPane.add(label5, 0, 7);
-        gridPane.add(vbox, 1, 7);
-        gridPane.add(btn_pay, 1, 10);
+        gridPane.add(btn_pay, 1, 6);
         GridPane.setMargin(btn_pay, new Insets(0, 0, 0, 30));
         gridPane.setAlignment(Pos.CENTER);
 
