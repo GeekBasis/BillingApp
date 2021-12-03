@@ -3,10 +3,8 @@ package com.billing.billing;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.sql.*;
-import java.util.Arrays;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
@@ -49,7 +47,7 @@ public class Billing extends Application {
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "xxxx", "xxxx");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "xxxx");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -97,7 +95,7 @@ public class Billing extends Application {
 
         main_app_window.setScene(main_app_scene);
         // adding css styling
-        main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
+        main_app_scene.getStylesheets().add((new File("your path" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
 
         // Login Scene content
         BorderPane main_pane_login = new BorderPane();
@@ -480,18 +478,18 @@ public class Billing extends Application {
 
     // for checking for a valid input of password
     private boolean isProperPassword(PasswordField password_input_field){
-            if  (password_input_field.getText()==null
-                    || password_input_field.getText().equals("")
-                    || password_input_field.getText().equals("Invalid input")) {
-                password_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
-                password_input_field.clear();
-                password_input_field.setPromptText("Invalid input");
-                return false;
-            }
-            else {
-                password_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
-                return true;
-            }
+        if  (password_input_field.getText()==null
+                || password_input_field.getText().equals("")
+                || password_input_field.getText().equals("Invalid input")) {
+            password_input_field.setStyle("-fx-border-color: red;-fx-font-color: red;");
+            password_input_field.clear();
+            password_input_field.setPromptText("Invalid input");
+            return false;
+        }
+        else {
+            password_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7; -fx-font-color: black;");
+            return true;
+        }
     }
 
     // main app pay window handle
@@ -578,7 +576,7 @@ public class Billing extends Application {
 
         // history container
         Rectangle[] container = new Rectangle[]{
-            new Rectangle(260, 155),
+                new Rectangle(260, 155),
         };
 
         // data for the pie chart
@@ -597,17 +595,35 @@ public class Billing extends Application {
     }
 
     // layout for history
-    public BorderPane addBrdHist(){
+    public LineChart addBrdHist(){
         // history container
-        BorderPane brd_hist = new BorderPane();
+        BorderPane brd_history = new BorderPane();
 
-        // just for a history container
-        Rectangle history_rect = new Rectangle(892, 310);
-        BorderPane.setMargin(history_rect, new Insets(0,0,0,8));
-        brd_hist.setCenter(history_rect);
-        history_rect.getStyleClass().add("history-view");
+        //Defining axises
+        final NumberAxis xaxis = new NumberAxis(1,31,1);
+        final NumberAxis yaxis = new NumberAxis(0, 500, 50);
 
-        return brd_hist;
+        //Defining Label for Axis
+        xaxis.setLabel("Month");
+        yaxis.setLabel("Amount of money");
+
+        //Creating the instance of Line chart with the specified axis
+        LineChart linechart = new LineChart(xaxis,yaxis);
+
+        //Creating series
+        XYChart.Series series = new XYChart.Series();
+
+        //setting the name and the date to the series
+        series.setName("Money spent this month");
+        series.getData().add(new XYChart.Data(1,25));
+        series.getData().add(new XYChart.Data(2, 30));
+        series.getData().add(new XYChart.Data(3, 100));
+        series.getData().add(new XYChart.Data(4, 80));
+        series.getData().add(new XYChart.Data(5, 73));
+
+        //adding the series to linechart
+        linechart.getData().add(series);
+        return linechart;
     }
 
     // Pie chart generation
