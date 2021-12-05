@@ -1,3 +1,6 @@
+/*GeekBasis*/
+/*Billing App*/
+
 package com.billing.billing;
 
 import java.io.File;
@@ -27,13 +30,13 @@ import javafx.stage.Stage;
 public class Billing extends Application {
 
     Stage main_window, main_app_window;
-    TextField name_input, l_name_input, email_input;
+    TextField name_input, l_name_input, email_input, account_number_input;
     PasswordField pass_field;
     Scene login_scene, main_scene;
     PieChart show_stats;
 
     @Override
-    public void start(Stage stage) throws MalformedURLException {
+    public void start(Stage stage) throws MalformedURLException, SQLException {
 
         // PieChart for the main app
         show_stats = new PieChart();
@@ -47,7 +50,7 @@ public class Billing extends Application {
         // MySQL set up
         Connection connect = null;
         try {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "xxxx");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "xxxx", "xxxx");
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -75,27 +78,6 @@ public class Billing extends Application {
         main_app_window.setWidth(1100);
         main_app_window.setHeight(680);
         main_app_window.setResizable(false);
-
-        // Main App Scene Content
-        BorderPane main_app = new BorderPane();
-
-        main_app.setLeft(addVBox());
-        main_app.setCenter(addVboxPane1());
-
-        Scene main_app_scene = new Scene(main_app);
-
-        // adding keyboard events to the main ap    p scene
-        main_app_scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                if (closeProgram()) {
-                    main_app_window.close();
-                }
-            }
-        });
-
-        main_app_window.setScene(main_app_scene);
-        // adding css styling
-        main_app_scene.getStylesheets().add((new File("your path" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
 
         // Login Scene content
         BorderPane main_pane_login = new BorderPane();
@@ -149,19 +131,21 @@ public class Billing extends Application {
 
         // sign in button
         Button login_button = new Button("Sign In");
-        Statement finalQuery1 = query;
+        Statement finalQuery = query;
         login_button.setOnAction(e->
         {
             isProper(nameInput);
             isProperPassword(passwordInput);
             if (isProper(nameInput) && isProperPassword(passwordInput)){
+                // Using SQL
+                String selectStatement = "select firstName, password from users where firstName= '"+nameInput.getText()+"' and password= '"+passwordInput.getText()+"'";
 
-                ////////// SQL //////////////
-                String selectStatement = "select Name, Password from users where Name= '"+nameInput.getText()+"' and Password= '"+passwordInput.getText()+"'";
                 ResultSet bool;
+
                 try {
-                    assert finalQuery1 != null;
-                    bool = finalQuery1.executeQuery(selectStatement);
+                    assert finalQuery != null;
+
+                    bool = finalQuery.executeQuery(selectStatement);
                     if(!bool.next()){
                         nameInput.clear();
                         passwordInput.clear();
@@ -171,6 +155,7 @@ public class Billing extends Application {
                         passwordInput.setPromptText("Wrong data entered");
                     }
                     else{
+
                         nameInput.setStyle("-fx-border-color: none;");
                         nameInput.setPromptText("Name");
                         passwordInput.setStyle("-fx-border-color: none;");
@@ -187,10 +172,12 @@ public class Billing extends Application {
             }
 
         });
+
+        // create account button
         Button create_acc_btn = new Button("Sign Up");
+
         // add an action to the sign-up button
         create_acc_btn.setOnAction(e->{
-
             main_window.close();
             main_window.setScene(main_scene);
             nameInput.setStyle("-fx-border-color: none;");
@@ -205,8 +192,6 @@ public class Billing extends Application {
             cleaner(); // cleans the inputted fields
             main_window.show();
             main_window.setTitle("GeekBasis \"Sign Up\"");
-
-
         });
 
         // A layout for buttons
@@ -315,16 +300,23 @@ public class Billing extends Application {
         email_input.setPrefHeight(30);
         email_input.setStyle("-fx-opacity: 0.7;");
 
+        // account number input
+        account_number_input = new TextField();
+        account_number_input.setPromptText("Account Number");
+        account_number_input.setPrefHeight(30);
+        account_number_input.setStyle("-fx-opacity: 0.7;");
+
         // password input
         pass_field = new PasswordField();
         pass_field.setPromptText("Password");
         pass_field.setPrefHeight(30);
         pass_field.setStyle("-fx-opacity: 0.7;");
-        em_pass_field.getChildren().addAll(email_input, pass_field);
+        em_pass_field.getChildren().addAll(email_input, pass_field, account_number_input);
 
         // setting margins for input fields
         VBox.setMargin(email_input, new Insets(0,0,10,0));
         VBox.setMargin(pass_field, new Insets(0,0,10,0));
+        VBox.setMargin(account_number_input, new Insets(0,0,10,0));
 
         // for the create account button
         GridPane btn_fld = new GridPane();
@@ -333,24 +325,28 @@ public class Billing extends Application {
         // create sign_in and create_account buttons
         Button create_btn = new Button("Sign Up");
         create_btn.setStyle("-fx-opacity: 0.9;");
+
         // event handling for the create button
-        Statement finalQuery = query;
+        Statement finalQuery2 = query;
         create_btn.setOnAction(e -> {
             isProper(name_input);
             isProper(l_name_input);
-            isProperEmail(email_input);
+            isProperNum(email_input);
+            isProperNum(account_number_input);
             isProperPassword(pass_field);
             if(isProper(name_input)
                     &&
                     isProper(l_name_input)
                     &&
-                    isProperEmail(email_input)
+                    isProperNum(email_input)
+                    &&
+                    isProperNum(account_number_input)
                     &&
                     isProperPassword(pass_field)){
-                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"')";
+                String insertStatement = "insert into users values ('"+name_input.getText()+"','"+l_name_input.getText()+"','"+email_input.getText()+"', '"+pass_field.getText()+"', '"+account_number_input.getText()+"')";
                 try {
-                    assert finalQuery != null;
-                    finalQuery.executeUpdate(insertStatement);
+                    assert finalQuery2 != null;
+                    finalQuery2.executeUpdate(insertStatement);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -384,6 +380,28 @@ public class Billing extends Application {
         login_content.setAlignment(Pos.CENTER);
         main_pane.setCenter(login_content);
 
+        // Main App Scene Content
+        BorderPane main_app = new BorderPane();
+
+        main_app.setLeft(addVBox());
+        main_app.setCenter(addVboxPane1());
+
+        Scene main_app_scene = new Scene(main_app);
+
+        // adding keyboard events to the main app scene
+        main_app_scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (closeProgram()) {
+                    main_app_window.close();
+                }
+            }
+        });
+
+        main_app_window.setScene(main_app_scene);
+        // adding css styling
+        main_app_scene.getStylesheets().add((new File("C:\\Workspace\\Inha\\Soph(1st)\\Java\\Billing" + "\\src\\main\\java\\com\\billing\\billing\\Design.css")).toURI().toURL().toExternalForm());
+
+
         // stage options
         main_window.setResizable(false);
 
@@ -397,13 +415,16 @@ public class Billing extends Application {
                 case ENTER: {
                     isProper(name_input);
                     isProper(l_name_input);
-                    isProper(email_input);
+                    isProperNum(email_input);
+                    isProperNum(account_number_input);
                     isProperPassword(pass_field);
                     if(isProper(name_input)
                             &&
                             isProper(l_name_input)
                             &&
-                            isProper(email_input)
+                            isProperNum(email_input)
+                            &&
+                            isProperNum(account_number_input)
                             &&
                             isProperPassword(pass_field)){
                         main_window.setScene(login_scene);
@@ -461,7 +482,7 @@ public class Billing extends Application {
     }
 
     // for checking for a valid input of email
-    private boolean isProperEmail(TextField email_input_field){
+    private boolean isProperNum(TextField email_input_field){
         if  (email_input_field.getText()==null
                 || email_input_field.getText().equals("")
                 || email_input_field.getText().equals("Invalid input")) {
@@ -511,35 +532,33 @@ public class Billing extends Application {
         vbox.getChildren().add(title);
 
         Hyperlink[] options = new Hyperlink[]{
-                new Hyperlink("Profile"),
                 new Hyperlink("Pay"),
                 new Hyperlink("New Account"),
                 new Hyperlink("Log Out")};
 
         // hyperlinks in the main app
-        options[0].setOnAction(e->options[0].setVisited(false));
-        options[1].setOnAction(e-> {
+        options[0].setOnAction(e-> {
             payProgram();
-            options[1].setVisited(false);
+            options[0].setVisited(false);
         });
         //create new account option
-        options[2].setOnAction(e->{
+        options[1].setOnAction(e->{
             main_app_window.close();
             cleaner(); // cleans the input fields
             main_window.close();
             main_window.setScene(main_scene);
             main_window.show();
-            options[2].setVisited(false);
+            options[1].setVisited(false);
         });
         //exit option
-        options[3].setOnAction(e->{
+        options[2].setOnAction(e->{
             main_app_window.close();
             main_window.setScene(login_scene);
             main_window.show();
-            options[3].setVisited(false);
+            options[2].setVisited(false);
         });
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             VBox.setMargin(options[i], new Insets(0, 0, 0, 16));
             vbox.getChildren().add(options[i]);
         }
@@ -547,7 +566,7 @@ public class Billing extends Application {
     }
 
     // main app details
-    public VBox addVboxPane1() {
+    public VBox addVboxPane1() throws SQLException {
 
         // main app background image
         Image main_app_back_image = new Image("main_app_back_img.jpg", 1200, 780, false, false);
@@ -559,6 +578,7 @@ public class Billing extends Application {
         Background main_app_b_ground = new Background(main_app_bImg);
 
         VBox vbox_content = new VBox(10);
+
         vbox_content.getChildren().add(addGrdGraph());
         vbox_content.getChildren().add(addBrdHist());
 
@@ -568,7 +588,23 @@ public class Billing extends Application {
     }
 
     // layout for graphs
-    public GridPane addGrdGraph() {
+    public GridPane addGrdGraph() throws SQLException {
+
+        // MySQL set up
+        Connection connect1 = null;
+        try {
+            connect1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "xxxx", "xxxx");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        Statement query1 = null;
+        try {
+            assert connect1 != null;
+            query1 = connect1.createStatement();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
 
         // holds graphs
         GridPane graph_grid = new GridPane();
@@ -581,7 +617,27 @@ public class Billing extends Application {
 
         // data for the pie chart
         String[] where = {"Internet", "Loan", "Mobile Operators", "Utility"};
-        int[] amount = {99000, 361000, 15000, 200000};
+        int[] amount = new int[4];
+        int cursor = 0;
+
+        String selectStatement_pie = "select type, sum(amount) as amount from payment where accountNumber= "+0000+" group by type order by type";
+
+        ResultSet bool_pie;
+        try {
+            System.out.println("1111");
+            assert query1 != null;
+            bool_pie = query1.executeQuery(selectStatement_pie);
+            while (bool_pie.next()){
+                amount[cursor] = bool_pie.getInt("amount");
+                System.out.println("Display array " + amount[cursor]);
+                cursor++;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        connect1.close();
+
         Pane pie_chart = addPieChart(where, amount);
 
         // data for the bar chart
@@ -615,12 +671,11 @@ public class Billing extends Application {
 
         //setting the name and the date to the series
         series.setName("Money spent this month");
-        series.getData().add(new XYChart.Data(1,25));
-        series.getData().add(new XYChart.Data(2, 30));
-        series.getData().add(new XYChart.Data(3, 100));
-        series.getData().add(new XYChart.Data(4, 80));
-        series.getData().add(new XYChart.Data(5, 73));
-
+        for(int i = 1; i<15; i++) {
+            for(int k = 7; k<14; k++) {
+                series.getData().add(new XYChart.Data(i * 5 - k, 5 * i * k));
+            }
+        }
         //adding the series to linechart
         linechart.getData().add(series);
         return linechart;
@@ -729,9 +784,11 @@ public class Billing extends Application {
         l_name_input.clear();
         email_input.clear();
         pass_field.clear();
+        account_number_input.clear();
     }
 
     public static void main(String[] args) {
         launch();
     }
 }
+
