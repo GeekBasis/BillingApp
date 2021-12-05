@@ -18,18 +18,20 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class BillPayBox {
 
     static boolean answer;
-    static boolean pay;
+    // paying window
+    static Stage window = new Stage();
 
     public static void PayDisplay() {
 
         //GridPane for the components of pay window
         GridPane gridPane = new GridPane();
-
-        // paying window
-        Stage window = new Stage();
 
         // set the logo
         Image icon = new Image("Logo.jpg");
@@ -123,14 +125,55 @@ public class BillPayBox {
             isNotEmpty(money);
             isNotEmpty(name_specific);
 
-            if (isNotEmpty(your_account) && isNotEmpty(money)){
-                pay = true;
+            if (isNotEmpty(your_account) && isNotEmpty(money) && isNotEmpty(name_specific)){
+                String type = comboBox.getValue().toString();
+                String specificName = name_specific.getText();
+//                int accountNumber = Integer.parseInt(your_account.getText());
+                String accountNumber = your_account.getText();
+                int amount = Integer.parseInt(money.getText());
+
+                // get the current date in string
+                LocalDateTime localTime = LocalDateTime.now();
+                DateTimeFormatter time = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                String payed_when = time.format(localTime);
+
+                // sql: insert data into payment table
+                // MySQL set up
+                Connection connect = null;
+                try {
+                    connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/billing", "root", "@Jmamurov1605");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                Statement query = null;
+                try {
+                    assert connect != null;
+                    query = connect.createStatement();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                Statement finalQuery = query;
+                String insertStatement = "insert into payment values ('"+type+"','"+specificName+"','"+amount+"','"+accountNumber+"','"+payed_when+"')";
+                try {
+                    assert finalQuery != null;
+                    finalQuery.executeUpdate(insertStatement);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                try {
+                    connect.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
+                // close
+                window.close();
+                bill_pay.close();
             }
         });
 
         // when yes button is pressed
         yesButton.setOnAction(e -> {
-            answer = true;
             window.close();
             bill_pay.close();
         });
@@ -150,6 +193,7 @@ public class BillPayBox {
             return false;
         } else {
             text_input_field.setStyle("-fx-border-color: none; -fx-opacity: 0.7;");
+
             return true;
         }
 
